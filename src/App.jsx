@@ -1,43 +1,24 @@
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import Sidebar from './components/Sidebar'
 import UploadPanel from './components/UploadPanel'
 import Results from './components/Results'
+import MultiClass from './components/MultiClass'
+import AdvancedAnalysis from './components/AdvancedAnalysis'
 
 import {
-  ChartNoAxesCombined,
   FileText,
   ArrowUpRight
 } from 'lucide-react'
 
-
-// Backend URL
 const API =
   import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 
-// Illustrative preview data
-const demo = {
-  total_records: 1000,
-  attack_count: 350,
-  benign_count: 650,
-  accuracy: null,
-  is_demo: true,
-  predictions: [
-    { prediction: 'Attack', probability: 0.97 },
-    { prediction: 'Benign', probability: 0.91 }
-  ],
-  confusion_matrix: null,
-  classification_report: null
-}
-
-
-// Empty state component
 function EmptyState() {
   return (
     <div className="empty-state">
-
       <div className="empty-icon">
         <FileText size={25} />
       </div>
@@ -48,13 +29,11 @@ function EmptyState() {
         Upload a network traffic CSV to view detection results,
         threat distribution and model metrics.
       </p>
-
     </div>
   )
 }
 
 
-// Main application
 export default function App() {
 
   const [page, setPage] = useState('binary')
@@ -63,45 +42,77 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
+  const [metrics, setMetrics] = useState(null)
+  const [multiclassMetrics, setMulticlassMetrics] = useState(null)
 
-  // Page title
+
+  useEffect(() => {
+
+    async function fetchMetrics() {
+
+      try {
+
+        const binaryResponse = await fetch(`${API}/metrics`)
+
+        if (!binaryResponse.ok) {
+          throw new Error('Unable to fetch binary metrics')
+        }
+
+        setMetrics(await binaryResponse.json())
+
+
+        const multiclassResponse = await fetch(
+          `${API}/multiclass-metrics`
+        )
+
+        if (!multiclassResponse.ok) {
+          throw new Error('Unable to fetch multiclass metrics')
+        }
+
+        setMulticlassMetrics(await multiclassResponse.json())
+
+      } catch (error) {
+        console.error('Metrics error:', error)
+      }
+
+    }
+
+    fetchMetrics()
+
+  }, [])
+
+
   const pageTitle =
     page === 'binary'
       ? 'Binary Detection'
       : page === 'multi'
-        ? 'Multi-class Detection'
+        ? 'Multi-Class Detection'
         : 'Advanced Analysis'
 
 
-  // Analyze uploaded CSV
   async function analyze() {
 
     if (!file) return
 
     setBusy(true)
     setError('')
+    setResult(null)
 
     try {
 
       const form = new FormData()
       form.append('file', file)
 
-      const endpoint =
-        page === 'multi'
-          ? '/predict/multiclass'
-          : '/predict/binary'
-
-      const response = await fetch(
-        `${API}${endpoint}`,
-        {
-          method: 'POST',
-          body: form
-        }
-      )
+      const response = await fetch(`${API}/predict`, {
+        method: 'POST',
+        body: form
+      })
 
       if (!response.ok) {
+        const errorData = await response.json()
+
         throw new Error(
-          `Backend returned ${response.status}. Check that your friend's API is running.`
+          errorData.detail || `Backend error: ${response.status}`
         )
       }
 
@@ -114,18 +125,16 @@ export default function App() {
 
     } catch (e) {
 
-      // Clearly labelled preview if backend is unavailable
-      setResult({ ...demo })
+      console.error('Prediction error:', e)
 
       setError(
-        `${e.message} Showing illustrative preview data instead.`
+        e.message || 'Unable to connect to SecureNet backend.'
       )
 
     } finally {
-
       setBusy(false)
-
     }
+
   }
 
 
@@ -133,7 +142,6 @@ export default function App() {
 
     <div className="app-shell">
 
-      {/* Sidebar */}
       <Sidebar
         page={page}
         setPage={(newPage) => {
@@ -144,10 +152,8 @@ export default function App() {
       />
 
 
-      {/* Main content */}
       <main className="main">
 
-        {/* Header */}
         <header className="topbar">
 
           <div>
@@ -178,37 +184,11 @@ export default function App() {
         </header>
 
 
-        {/* Page content */}
-        {page !== 'binary' ? (
-
-          <div className="coming panel">
-
-            <div className="empty-icon">
-              <ChartNoAxesCombined />
-            </div>
-
-            <h2>{pageTitle}</h2>
-
-            <p>
-              This module will be enabled after the multiclass
-              and advanced analysis models are implemented.
-            </p>
-
-            <button
-              className="text-btn"
-              onClick={() => setPage('binary')}
-            >
-              Return to Binary Detection
-              <ArrowUpRight size={15} />
-            </button>
-
-          </div>
-
-        ) : (
+        {/* Binary Detection */}
+        {page === 'binary' && (
 
           <>
 
-            {/* CSV upload */}
             <UploadPanel
               file={file}
               onFile={(f) => {
@@ -220,18 +200,20 @@ export default function App() {
               busy={busy}
             />
 
-
-            {/* Error message */}
             {error && (
               <div className="error-note">
                 {error}
               </div>
             )}
 
-
-            {/* Results */}
             {result
-              ? <Results result={result} />
+              ? (
+                <Results
+                  result={result}
+                  metrics={metrics}
+                  multiclassMetrics={multiclassMetrics}
+                />
+              )
               : <EmptyState />
             }
 
@@ -240,15 +222,28 @@ export default function App() {
         )}
 
 
-        {/* Footer */}
-        <footer>
+        {/* Multi-Class Detection */}
+        {page === 'multi' && (
+          <MultiClass
+            multiclassMetrics={multiclassMetrics}
+          />
+        )}
 
+
+        {/* Advanced Analysis */}
+        {page === 'advanced' && (
+          <AdvancedAnalysis
+            multiclassMetrics={multiclassMetrics}
+          />
+        )}
+
+
+        <footer>
           SecureNet · Academic project prototype
 
           <span>
             Deep learning-based network intrusion detection
           </span>
-
         </footer>
 
       </main>
@@ -256,4 +251,5 @@ export default function App() {
     </div>
 
   )
+
 }

@@ -26,6 +26,7 @@ export default function Sidebar({ page, setPage }) {
 
   return (
     <aside className="sidebar">
+
       <div className="brand">
         <span className="brand-icon">
           <Shield size={20} />
@@ -46,17 +47,16 @@ export default function Sidebar({ page, setPage }) {
           >
             <Icon size={17} />
             <span>{item.label}</span>
-
-            {item.id !== 'binary' && <small>SOON</small>}
           </button>
         )
       })}
 
       <div className="sidebar-bottom">
         <div className="status-dot" />
-        Model connection
-        <span className="status-text">Demo mode</span>
+        Model workspace
+        <span className="status-text">SecureNet</span>
       </div>
+
     </aside>
   )
 }
