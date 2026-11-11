@@ -58,3 +58,92 @@ Suggested response:
 - Do not calculate accuracy from predictions without true labels.
 - Keep test data separate from training and model selection.
 - Record the dataset version, split, random seed and metrics in the project report.
+
+  ## How to Run SecureNet Locally
+
+Follow these steps whenever you want to run the SecureNet project.
+
+### 1. Prerequisites
+
+Make sure you have installed:
+- Python
+- Node.js and npm
+- Required Python dependencies
+- Project dependencies
+
+### 2. Start the Backend (FastAPI)
+
+1. Open Command Prompt.
+2. Navigate to the project folder:
+
+```bash
+cd C:\Users\aditi\Downloads\SecureNet-Frontend-Starter\SecureNet
+```
+
+3. Start the backend server:
+
+```bash
+uvicorn backend.main:app --reload
+```
+
+4. Wait until you see:
+
+```text
+Uvicorn running on http://127.0.0.1:8000
+Application startup complete.
+```
+
+Keep this terminal open.
+
+### 3. Start the Frontend (React + Vite)
+
+1. Open a **second Command Prompt window**.
+2. Navigate to the same project folder:
+
+```bash
+cd C:\Users\aditi\Downloads\SecureNet-Frontend-Starter\SecureNet
+```
+
+3. Start the frontend:
+
+```bash
+npm run dev
+```
+
+4. Wait until you see the local URL:
+
+```text
+Local: http://localhost:5173/
+```
+
+### 4. Open SecureNet
+
+Open the following URL in your browser:
+
+**http://localhost:5173/**
+
+The SecureNet dashboard should now be accessible.
+
+### 5. Explore the Dashboard
+
+The application has three main sections:
+
+- **Binary Detection:** Upload a CSV dataset to classify network traffic as benign or attack.
+- **Multi-Class Detection:** View multiclass classification performance and the confusion matrix.
+- **Advanced Analysis:** Explore model evaluation metrics and visualizations.
+
+### 6. Stop the Application
+
+When finished:
+- Go to the backend terminal and press `Ctrl + C`.
+- Go to the frontend terminal and press `Ctrl + C`.
+
+**Important:** Both backend and frontend servers must be running simultaneously for the application to work.
+
+### Project URLs
+
+- Frontend: http://localhost:5173/
+- Backend API: http://127.0.0.1:8000/
+- API Documentation: http://127.0.0.1:8000/docs
+
+**Note:** The dataset and trained model files must be present locally. The dataset CSV files are excluded from GitHub through `.gitignore`.
