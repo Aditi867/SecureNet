@@ -965,3 +965,164 @@ footer {
   }
 
 }
+
+/* =========================================
+   ML VS DL COMPARISON DASHBOARD
+========================================= */
+
+.comparison-page {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.comparison-intro {
+  padding: 22px 24px;
+  background: linear-gradient(120deg, #10344d, #14294a);
+  border: 1px solid #28506c;
+  border-radius: 14px;
+}
+
+.comparison-intro h2 {
+  font: 800 20px Manrope;
+  margin: 0 0 8px;
+  color: #e8f7ff;
+}
+
+.comparison-intro p {
+  color: #91abc5;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.comparison-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.comparison-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #52d5e8;
+}
+
+.comparison-heading h2 {
+  color: #e8f1fc;
+  font: 700 17px Manrope;
+  margin: 0;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.comparison-card {
+  background: linear-gradient(145deg, #142f49, #10263d);
+  border: 1px solid #294863;
+  border-radius: 12px;
+  padding: 18px;
+  transition: transform .2s, border-color .2s;
+}
+
+.comparison-card:hover {
+  transform: translateY(-3px);
+  border-color: #38c9df;
+}
+
+.comparison-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #91abc5;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.comparison-card-header svg {
+  color: #50d6e8;
+}
+
+.comparison-values {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.comparison-values > div {
+  min-width: 0;
+}
+
+.comparison-label {
+  display: block;
+  color: #8099b3;
+  font-size: 10px;
+  margin-bottom: 7px;
+}
+
+.comparison-values h2 {
+  color: #53d9e9;
+  font: 800 clamp(18px, 2vw, 24px) Manrope;
+  margin: 0;
+}
+
+.comparison-values > div:last-child h2 {
+  color: #b69aff;
+}
+
+.comparison-chart-card {
+  background: linear-gradient(145deg, #10243a, #0c1d31);
+  border: 1px solid #203a55;
+  border-radius: 14px;
+  padding: 22px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.comparison-chart-card h3 {
+  color: #e8f3ff;
+  font: 700 15px Manrope;
+  margin: 0 0 18px;
+}
+
+.comparison-note {
+  color: #819ab4;
+  font-size: 11px;
+  margin: -8px 0 18px;
+  line-height: 1.5;
+}
+
+/* Comparison dashboard responsive layout */
+
+@media (min-width: 1000px) {
+  .comparison-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-intro {
+    padding: 18px;
+  }
+
+  .comparison-chart-card {
+    padding: 14px 8px;
+  }
+
+  .comparison-heading h2 {
+    font-size: 15px;
+  }
+
+  .comparison-values h2 {
+    font-size: 20px;
+  }
+}

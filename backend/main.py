@@ -17,13 +17,21 @@ from .predict import predict_data
 
 MODEL_DIR = Path(__file__).parent / "saved_models"
 
-# Binary metrics
+
+# Deep Learning metrics
 with open(MODEL_DIR / "binary_metrics.json", "r") as file:
     binary_metrics = json.load(file)
 
-# Multiclass metrics
 with open(MODEL_DIR / "multiclass_metrics.json", "r") as file:
     multiclass_metrics = json.load(file)
+
+
+# Machine Learning metrics
+with open(MODEL_DIR / "ml_binary_metrics.json", "r") as file:
+    ml_binary_metrics = json.load(file)
+
+with open(MODEL_DIR / "ml_multiclass_metrics.json", "r") as file:
+    ml_multiclass_metrics = json.load(file)
 
 
 # ==================================================
@@ -79,7 +87,7 @@ def health_check():
 
 
 # ==================================================
-# 6. BINARY MODEL METRICS
+# 6. BINARY MODEL METRICS (DEEP LEARNING)
 # ==================================================
 
 @app.get("/metrics")
@@ -89,7 +97,7 @@ def get_binary_metrics():
 
 
 # ==================================================
-# 7. MULTICLASS MODEL METRICS
+# 7. MULTICLASS MODEL METRICS (DEEP LEARNING)
 # ==================================================
 
 @app.get("/multiclass-metrics")
@@ -99,7 +107,27 @@ def get_multiclass_metrics():
 
 
 # ==================================================
-# 8. UPLOAD CSV AND DETECT NETWORK ATTACKS
+# 8. ML VS DL COMPARISON METRICS
+# ==================================================
+
+@app.get("/comparison-metrics")
+def get_comparison_metrics():
+
+    return {
+        "binary": {
+            "deep_learning": binary_metrics,
+            "machine_learning": ml_binary_metrics
+        },
+
+        "multiclass": {
+            "deep_learning": multiclass_metrics,
+            "machine_learning": ml_multiclass_metrics
+        }
+    }
+
+
+# ==================================================
+# 9. UPLOAD CSV AND DETECT NETWORK ATTACKS
 # ==================================================
 
 @app.post("/predict")

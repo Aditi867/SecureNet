@@ -1,8 +1,10 @@
+
 import {
   Shield,
   Activity,
   TriangleAlert,
-  ChartNoAxesCombined
+  ChartNoAxesCombined,
+  GitCompareArrows
 } from 'lucide-react'
 
 export default function Sidebar({ page, setPage }) {
@@ -21,6 +23,11 @@ export default function Sidebar({ page, setPage }) {
       id: 'advanced',
       label: 'Advanced Analysis',
       icon: ChartNoAxesCombined
+    },
+    {
+      id: 'comparison',
+      label: 'ML vs DL Comparison',
+      icon: GitCompareArrows
     }
   ]
 

@@ -6,10 +6,10 @@ import UploadPanel from './components/UploadPanel'
 import Results from './components/Results'
 import MultiClass from './components/MultiClass'
 import AdvancedAnalysis from './components/AdvancedAnalysis'
+import Comparison from './components/Comparison'
 
 import {
-  FileText,
-  ArrowUpRight
+  FileText
 } from 'lucide-react'
 
 const API =
@@ -44,8 +44,10 @@ export default function App() {
 
   const [metrics, setMetrics] = useState(null)
   const [multiclassMetrics, setMulticlassMetrics] = useState(null)
+  const [comparisonMetrics, setComparisonMetrics] = useState(null)
 
 
+  // Fetch all model metrics
   useEffect(() => {
 
     async function fetchMetrics() {
@@ -71,6 +73,17 @@ export default function App() {
 
         setMulticlassMetrics(await multiclassResponse.json())
 
+
+        const comparisonResponse = await fetch(
+          `${API}/comparison-metrics`
+        )
+
+        if (!comparisonResponse.ok) {
+          throw new Error('Unable to fetch comparison metrics')
+        }
+
+        setComparisonMetrics(await comparisonResponse.json())
+
       } catch (error) {
         console.error('Metrics error:', error)
       }
@@ -82,14 +95,18 @@ export default function App() {
   }, [])
 
 
+  // Page titles
   const pageTitle =
     page === 'binary'
       ? 'Binary Detection'
       : page === 'multi'
         ? 'Multi-Class Detection'
-        : 'Advanced Analysis'
+        : page === 'advanced'
+          ? 'Advanced Analysis'
+          : 'ML vs DL Comparison'
 
 
+  // CSV prediction
   async function analyze() {
 
     if (!file) return
@@ -143,12 +160,8 @@ export default function App() {
     <div className="app-shell">
 
       <Sidebar
-        page={page}
-        setPage={(newPage) => {
-          setPage(newPage)
-          setResult(null)
-          setError('')
-        }}
+      page={page}
+      setPage={setPage}
       />
 
 
@@ -171,7 +184,9 @@ export default function App() {
             </h1>
 
             <p>
-              Real-time network threat detection and analysis
+              {page === 'comparison'
+                ? 'Performance comparison of Machine Learning and Deep Learning models'
+                : 'Network threat detection and analysis'}
             </p>
 
           </div>
@@ -234,6 +249,14 @@ export default function App() {
         {page === 'advanced' && (
           <AdvancedAnalysis
             multiclassMetrics={multiclassMetrics}
+          />
+        )}
+
+
+        {/* ML vs DL Comparison */}
+        {page === 'comparison' && (
+          <Comparison
+            comparisonMetrics={comparisonMetrics}
           />
         )}
 

@@ -74,6 +74,8 @@
             "support": 88009.0
         }
     },
+    "training_time": 69.57338590035215,
+    "inference_time": 0.059668200090527534,
     "confusion_matrix": [
         [
             14,

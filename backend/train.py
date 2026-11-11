@@ -1,5 +1,6 @@
 
 import json
+import time
 import torch
 import joblib
 
@@ -96,7 +97,6 @@ print("\nBinary model training setup successful!")
 print(binary_model)
 
 
-# Create binary dataset
 binary_dataset = TensorDataset(
     X_train_tensor,
     y_binary_train_tensor
@@ -117,6 +117,8 @@ print("Total batches:", len(binary_loader))
 # ==================================================
 
 binary_epochs = 1
+
+binary_training_start = time.perf_counter()
 
 binary_model.train()
 
@@ -148,7 +150,12 @@ for epoch in range(binary_epochs):
         f"Loss: {average_loss:.4f}"
     )
 
+binary_training_time = (
+    time.perf_counter() - binary_training_start
+)
+
 print("\nBinary model training completed!")
+print("Binary training time:", round(binary_training_time, 2), "seconds")
 
 
 # ==================================================
@@ -156,6 +163,8 @@ print("\nBinary model training completed!")
 # ==================================================
 
 binary_model.eval()
+
+binary_inference_start = time.perf_counter()
 
 with torch.no_grad():
 
@@ -165,35 +174,39 @@ with torch.no_grad():
         torch.sigmoid(predictions) >= 0.5
     ).int()
 
-    y_true = y_binary_test_tensor.int()
+binary_inference_time = (
+    time.perf_counter() - binary_inference_start
+)
 
-    accuracy = accuracy_score(
-        y_true.numpy(),
-        predictions.numpy()
-    )
+y_true = y_binary_test_tensor.int()
 
-    precision = precision_score(
-        y_true.numpy(),
-        predictions.numpy(),
-        zero_division=0
-    )
+accuracy = accuracy_score(
+    y_true.numpy(),
+    predictions.numpy()
+)
 
-    recall = recall_score(
-        y_true.numpy(),
-        predictions.numpy(),
-        zero_division=0
-    )
+precision = precision_score(
+    y_true.numpy(),
+    predictions.numpy(),
+    zero_division=0
+)
 
-    f1 = f1_score(
-        y_true.numpy(),
-        predictions.numpy(),
-        zero_division=0
-    )
+recall = recall_score(
+    y_true.numpy(),
+    predictions.numpy(),
+    zero_division=0
+)
 
-    binary_matrix = confusion_matrix(
-        y_true.numpy(),
-        predictions.numpy()
-    )
+f1 = f1_score(
+    y_true.numpy(),
+    predictions.numpy(),
+    zero_division=0
+)
+
+binary_matrix = confusion_matrix(
+    y_true.numpy(),
+    predictions.numpy()
+)
 
 
 print("\n========== BINARY CLASSIFICATION RESULTS ==========")
@@ -202,6 +215,9 @@ print("Accuracy:", round(accuracy * 100, 2), "%")
 print("Precision:", round(precision * 100, 2), "%")
 print("Recall:", round(recall * 100, 2), "%")
 print("F1 Score:", round(f1 * 100, 2), "%")
+
+print("Training Time:", round(binary_training_time, 2), "seconds")
+print("Inference Time:", round(binary_inference_time, 2), "seconds")
 
 print("Confusion Matrix:\n", binary_matrix)
 
@@ -212,6 +228,8 @@ binary_metrics = {
     "precision": float(precision),
     "recall": float(recall),
     "f1_score": float(f1),
+    "training_time": float(binary_training_time),
+    "inference_time": float(binary_inference_time),
     "confusion_matrix": binary_matrix.tolist()
 }
 
@@ -286,6 +304,8 @@ print(multi_model)
 
 multi_epochs = 5
 
+multi_training_start = time.perf_counter()
+
 multi_model.train()
 
 for epoch in range(multi_epochs):
@@ -316,7 +336,12 @@ for epoch in range(multi_epochs):
         f"Loss: {average_loss:.4f}"
     )
 
+multi_training_time = (
+    time.perf_counter() - multi_training_start
+)
+
 print("\nMulticlass model training completed!")
+print("Multiclass training time:", round(multi_training_time, 2), "seconds")
 
 
 # ==================================================
@@ -324,6 +349,8 @@ print("\nMulticlass model training completed!")
 # ==================================================
 
 multi_model.eval()
+
+multi_inference_start = time.perf_counter()
 
 with torch.no_grad():
 
@@ -334,22 +361,24 @@ with torch.no_grad():
         dim=1
     )
 
-    y_true = y_multi_test_tensor
+multi_inference_time = (
+    time.perf_counter() - multi_inference_start
+)
 
-    # Generate classification report
-    report = classification_report(
-        y_true.numpy(),
-        predictions.numpy(),
-        target_names=label_encoder.classes_,
-        output_dict=True,
-        zero_division=0
-    )
+y_true = y_multi_test_tensor
 
-    # Generate confusion matrix
-    multi_matrix = confusion_matrix(
-        y_true.numpy(),
-        predictions.numpy()
-    )
+report = classification_report(
+    y_true.numpy(),
+    predictions.numpy(),
+    target_names=label_encoder.classes_,
+    output_dict=True,
+    zero_division=0
+)
+
+multi_matrix = confusion_matrix(
+    y_true.numpy(),
+    predictions.numpy()
+)
 
 
 print("\n========== MULTICLASS CLASSIFICATION RESULTS ==========")
@@ -365,6 +394,9 @@ print(
     )
 )
 
+print("\nTraining Time:", round(multi_training_time, 2), "seconds")
+print("Inference Time:", round(multi_inference_time, 2), "seconds")
+
 print("\nConfusion Matrix:\n")
 print(multi_matrix)
 
@@ -372,6 +404,8 @@ print(multi_matrix)
 # Save multiclass evaluation metrics
 multi_metrics = {
     "classification_report": report,
+    "training_time": float(multi_training_time),
+    "inference_time": float(multi_inference_time),
     "confusion_matrix": multi_matrix.tolist()
 }
 
@@ -389,7 +423,6 @@ print("\nMulticlass evaluation metrics saved successfully!")
 # 9. SAVE TRAINED MODELS
 # ==================================================
 
-# Save binary model
 torch.save(
     binary_model.state_dict(),
     "backend/saved_models/binary_model.pth"
@@ -398,7 +431,6 @@ torch.save(
 print("\nBinary model saved successfully!")
 
 
-# Save multiclass model
 torch.save(
     multi_model.state_dict(),
     "backend/saved_models/multiclass_model.pth"
@@ -429,4 +461,3 @@ joblib.dump(
 print("\nPreprocessing objects saved successfully!")
 
 print("\n========== SECURENET TRAINING COMPLETED ==========")
-
