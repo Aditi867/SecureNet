@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import {
   Wifi, Play, Square, Activity, RefreshCw, PieChart,
   Database, Package, Network, ArrowUpDown, Shield,
-  Download, History
+  Download, History, ChevronDown
 } from 'lucide-react'
 
 import {
@@ -30,6 +30,36 @@ const COLORS = [
   '#ef4444', '#8b5cf6', '#64748b'
 ]
 
+function CollapsibleSection({ title, subtitle, icon: Icon, children }) {
+  return (
+    <details className="analysis-card">
+      <summary
+        style={{
+          cursor: 'pointer',
+          listStyle: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px'
+        }}
+      >
+        <div>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {Icon && <Icon size={19} />}
+            {title}
+          </h3>
+          {subtitle && <p>{subtitle}</p>}
+        </div>
+        <ChevronDown size={20} />
+      </summary>
+
+      <div style={{ marginTop: '18px' }}>
+        {children}
+      </div>
+    </details>
+  )
+}
+
 function LiveMonitoring() {
   const [status, setStatus] = useState({
     running: false, total_flows: 0, flows: [], errors: []
@@ -38,12 +68,10 @@ function LiveMonitoring() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // SHAP explanation states
   const [explanation, setExplanation] = useState(null)
   const [explainingFlowKey, setExplainingFlowKey] = useState(null)
   const [explainError, setExplainError] = useState('')
 
-  // Persistent detection history states
   const [historyRecords, setHistoryRecords] = useState([])
   const [historyStats, setHistoryStats] = useState({
     total: 0, normal: 0, malicious: 0, errors: 0
@@ -64,7 +92,6 @@ function LiveMonitoring() {
     }
   }, [])
 
-  // Fetch persistent history and its statistics
   const fetchHistory = useCallback(async () => {
     setHistoryLoading(true)
     setHistoryError('')
@@ -146,7 +173,6 @@ function LiveMonitoring() {
     }
   }
 
-  // Download complete detection history as CSV
   async function exportHistory() {
     setExporting(true)
     setHistoryError('')
@@ -182,7 +208,6 @@ function LiveMonitoring() {
     flow.dst_port, flow.protocol, flow.duration_ms
   ].join('-')
 
-  // Generate SHAP explanation for an individual flow
   async function explainFlow(flow) {
     const flowKey = getFlowKey(flow)
 
@@ -316,7 +341,6 @@ function LiveMonitoring() {
   return (
     <div className="dashboard-content">
 
-      {/* Page Header */}
       <div className="section-header">
         <div>
           <h2>Live Network Monitoring</h2>
@@ -329,7 +353,6 @@ function LiveMonitoring() {
         </button>
       </div>
 
-      {/* Capture Metrics */}
       <div className="metrics-grid">
         <div className="metric-card">
           <div className="metric-icon"><Wifi /></div>
@@ -343,7 +366,6 @@ function LiveMonitoring() {
         </div>
       </div>
 
-      {/* Overall Traffic Summary */}
       <div className="metrics-grid">
         <div className="metric-card">
           <div className="metric-icon"><Package /></div>
@@ -362,7 +384,6 @@ function LiveMonitoring() {
         </div>
       </div>
 
-      {/* Live Threat Detection Summary */}
       <div className="metrics-grid">
         <div className="metric-card">
           <div className="metric-icon"><Shield /></div>
@@ -381,7 +402,6 @@ function LiveMonitoring() {
         </div>
       </div>
 
-      {/* Intelligent Threat Triage */}
       <div className="analysis-card">
         <h3><Shield size={19} /> Intelligent Threat Triage</h3>
         <p>
@@ -407,7 +427,6 @@ function LiveMonitoring() {
         </div>
       </div>
 
-      {/* Live Threat Alerts */}
       <div className="analysis-card">
         <h3><Shield size={19} /> Live Threat Alerts</h3>
 
@@ -463,7 +482,6 @@ function LiveMonitoring() {
         </p>
       </div>
 
-      {/* SHAP Explainable AI Panel */}
       {(explanation || explainError) && (
         <div className="analysis-card">
           <h3><Activity size={19} /> Explainable AI - SHAP Analysis</h3>
@@ -515,7 +533,6 @@ function LiveMonitoring() {
         </div>
       )}
 
-      {/* Directional Traffic */}
       <div className="analysis-card">
         <h3><ArrowUpDown size={19} /> Directional Traffic Tracking</h3>
         <p>Breakdown of traffic in both directions across retained network flows.</p>
@@ -533,7 +550,6 @@ function LiveMonitoring() {
         </div>
       </div>
 
-      {/* Capture Controls */}
       <div className="analysis-card">
         <h3>Network Capture</h3>
         <p>Capture live network flows and their detailed traffic measurements.</p>
@@ -557,14 +573,15 @@ function LiveMonitoring() {
         </p>
       </div>
 
-      {/* NEW: Persistent Detection History */}
-      <div className="analysis-card">
+      <CollapsibleSection
+        title="Persistent Detection History"
+        subtitle="Previously recorded network detections stored in the local database. Expand to view history and export records."
+        icon={History}
+      >
         <div className="section-header">
           <div>
-            <h3><History size={19} /> Persistent Detection History</h3>
-            <p>
-              Previously recorded network detections stored in the local database.
-            </p>
+            <h3>Detection History Records</h3>
+            <p>Review stored detections or export the complete history.</p>
           </div>
           <div className="monitor-actions">
             <button onClick={fetchHistory} disabled={historyLoading}>
@@ -675,11 +692,14 @@ function LiveMonitoring() {
           100 records; CSV export includes all recorded history.
           Model classifications are predictions, not independently confirmed attacks.
         </p>
-      </div>
+      </CollapsibleSection>
 
-      {/* Protocol Distribution */}
-      <div className="analysis-card">
-        <h3><PieChart size={19} /> Protocol-wise Traffic Analysis</h3>
+      <CollapsibleSection
+        title="Protocol Analysis"
+        subtitle="Explore protocol distribution, flow counts and data volume."
+        icon={PieChart}
+      >
+        <h3>Protocol-wise Traffic Analysis</h3>
 
         {protocolData.length === 0 ? (
           <p>No protocol data available. Start monitoring to analyse traffic.</p>
@@ -715,10 +735,7 @@ function LiveMonitoring() {
         <p className="monitor-note">
           Chart represents the currently retained captured flows.
         </p>
-      </div>
 
-      {/* Protocol Statistics */}
-      <div className="analysis-card">
         <h3>Protocol Statistics</h3>
 
         {protocolData.length === 0 ? (
@@ -750,15 +767,13 @@ function LiveMonitoring() {
         <p className="monitor-note">
           Data volume is calculated using bidirectional bytes.
         </p>
-      </div>
+      </CollapsibleSection>
 
-      {/* Detailed Flow Tracking */}
-      <div className="analysis-card">
-        <h3>
-          <Activity size={19} />
-          Detailed Network Flow Tracking and Threat Classification
-        </h3>
-
+      <CollapsibleSection
+        title="Detailed Network Flow Tracking and Threat Classification"
+        subtitle="Inspect individual captured flows, traffic measurements and model predictions."
+        icon={Activity}
+      >
         {flows.length === 0 ? (
           <p>No network flows captured yet.</p>
         ) : (
@@ -849,7 +864,7 @@ function LiveMonitoring() {
           Classification and confidence are generated by the live machine-learning model.
           Risk levels are provisional score bands used to prioritize manual review.
         </p>
-      </div>
+      </CollapsibleSection>
 
     </div>
   )
