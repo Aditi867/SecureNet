@@ -4,7 +4,8 @@ import {
   Activity,
   TriangleAlert,
   ChartNoAxesCombined,
-  GitCompareArrows
+  GitCompareArrows,
+  Wifi
 } from 'lucide-react'
 
 export default function Sidebar({ page, setPage }) {
@@ -28,6 +29,11 @@ export default function Sidebar({ page, setPage }) {
       id: 'comparison',
       label: 'ML vs DL Comparison',
       icon: GitCompareArrows
+    },
+    {
+      id: 'live',
+      label: 'Live Monitoring',
+      icon: Wifi
     }
   ]
 

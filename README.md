@@ -1,149 +1,182 @@
-# SecureNet Frontend
+# SecureNet – Deep Learning-Based Network Intrusion Detection System
 
-A React + Vite starter for the SecureNet network intrusion detection dashboard.
+SecureNet is a network intrusion detection dashboard built using React, FastAPI, Machine Learning, and Deep Learning. It analyses network traffic, classifies potential attacks, compares ML and DL models, and supports live network traffic monitoring.
+
+## Features
+
+- **Binary Detection:** Classifies network traffic as Normal or Attack.
+- **Multi-Class Detection:** Identifies different categories of network attacks.
+- **Advanced Analysis:** Displays model evaluation metrics and visualisations.
+- **ML vs DL Comparison:** Compares machine learning and deep learning model performance.
+- **Live Monitoring:** Captures and analyses live network flows.
+- **Explainable AI:** Uses SHAP to explain individual live predictions.
+- **Detection History:** Stores live detection records using SQLite.
+- **CSV Export:** Exports detection history for further analysis.
+
+## Technology Stack
+
+**Frontend**
+- React
+- Vite
+- Recharts
+- Lucide React
+
+**Backend**
+- Python
+- FastAPI
+- Scikit-learn
+- PyTorch
+- XGBoost
+- SHAP
+- NFStream
+- SQLite
 
 ## Requirements
-- Node.js LTS
+
+Install the following before running the project:
+
+- Python 3.10 or 3.11 recommended
+- Node.js LTS and npm
+- Git
 - VS Code (recommended)
 
-## Run locally
-1. Extract this folder.
-2. Open the `SecureNet` folder in VS Code.
-3. Open Terminal > New Terminal.
-4. Run:
+For live network monitoring on Windows:
+- Npcap must be installed.
+- A supported network interface is required.
+- Administrator permissions may be required for packet capture.
+
+## 1. Clone the Repository
+
+Open Command Prompt and run:
+
+```bash
+git clone https://github.com/Aditi867/SecureNet.git
+cd SecureNet
+```
+
+## 2. Set Up the Backend
+
+Create a Python virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+```bash
+.venv\Scripts\activate
+```
+
+Install the backend dependencies:
+
+```bash
+python -m pip install --upgrade pip
+pip install -r backend/requirements.txt
+```
+
+Start the FastAPI backend:
+
+```bash
+python -m uvicorn backend.main:app --reload
+```
+
+The backend will run at:
+
+http://127.0.0.1:8000
+
+API documentation:
+
+http://127.0.0.1:8000/docs
+
+Keep this terminal running.
+
+## 3. Set Up the Frontend
+
+Open a second terminal in the project directory.
+
+Install the frontend dependencies:
 
 ```bash
 npm install
-cp .env.example .env
-npm run dev
 ```
 
-5. Open the local URL printed by Vite (usually http://localhost:5173).
-
-## Current status
-- The dashboard UI is implemented.
-- CSV selection is implemented.
-- The frontend calls `POST /predict/binary` or `POST /predict/multiclass`.
-- If the backend is not running, an explicitly labelled illustrative preview appears.
-- Multi-class and Advanced Analysis are placeholders until those models are implemented.
-- Never present illustrative preview data as real model results.
-
-## Backend integration contract
-Set `VITE_API_BASE_URL` in `.env` to the backend address, e.g. `http://127.0.0.1:8000`.
-
-The frontend sends a multipart/form-data request with field name `file`.
-
-Suggested response:
-
-```json
-{
-  "total_records": 1000,
-  "attack_count": 350,
-  "benign_count": 650,
-  "accuracy": null,
-  "predictions": [
-    {"prediction": "Attack", "probability": 0.97},
-    {"prediction": "Benign", "probability": 0.91}
-  ],
-  "confusion_matrix": null,
-  "classification_report": null
-}
-```
-
-`accuracy`, `confusion_matrix`, and `classification_report` must be null when ground-truth labels are not available. If `confusion_matrix` is provided, use a 2x2 array ordered as `[[TN, FP], [FN, TP]]` for binary classification with class 1 = Attack.
-
-## Important scientific safeguards
-- The model must use the exact feature order and preprocessing saved during training.
-- Fit scalers/encoders on training data only.
-- Do not calculate accuracy from predictions without true labels.
-- Keep test data separate from training and model selection.
-- Record the dataset version, split, random seed and metrics in the project report.
-
-  ## How to Run SecureNet Locally
-
-Follow these steps whenever you want to run the SecureNet project.
-
-### 1. Prerequisites
-
-Make sure you have installed:
-- Python
-- Node.js and npm
-- Required Python dependencies
-- Project dependencies
-
-### 2. Start the Backend (FastAPI)
-
-1. Open Command Prompt.
-2. Navigate to the project folder:
-
-```bash
-cd C:\Users\aditi\Downloads\SecureNet-Frontend-Starter\SecureNet
-```
-
-3. Start the backend server:
-
-```bash
-uvicorn backend.main:app --reload
-```
-
-4. Wait until you see:
-
-```text
-Uvicorn running on http://127.0.0.1:8000
-Application startup complete.
-```
-
-Keep this terminal open.
-
-### 3. Start the Frontend (React + Vite)
-
-1. Open a **second Command Prompt window**.
-2. Navigate to the same project folder:
-
-```bash
-cd C:\Users\aditi\Downloads\SecureNet-Frontend-Starter\SecureNet
-```
-
-3. Start the frontend:
+Start the frontend:
 
 ```bash
 npm run dev
 ```
 
-4. Wait until you see the local URL:
+Open the URL displayed by Vite, usually:
+
+http://localhost:5173/
+
+Keep both frontend and backend terminals running.
+
+## 4. Using SecureNet
+
+Once both servers are running, explore the dashboard:
+
+1. Binary Detection – Upload network traffic CSV data for binary classification.
+2. Multi-Class – Analyse network traffic across multiple attack categories.
+3. Advanced Analysis – Explore model metrics and visualisations.
+4. ML vs DL Comparison – Compare trained model performance.
+5. Live Monitoring – Start monitoring supported live network interfaces.
+6. Explain with AI – View SHAP-based explanations for selected live flows.
+7. Detection History – Review stored detections and export them as CSV.
+
+## 5. Trained Models and Datasets
+
+Pre-trained model files are included in `backend/saved_models/`.
+
+Large raw datasets and local traffic capture files are excluded from this repository to keep the download manageable.
+
+The pre-trained models can be used for inference without downloading the original training datasets. Training or retraining models requires the corresponding datasets.
+
+## 6. Live Monitoring Notes
+
+Live Monitoring uses NFStream to capture and analyse network flows.
+
+On Windows:
+- Install Npcap before starting live capture.
+- Select an available network interface.
+- Run with the necessary permissions for packet capture.
+
+Live predictions are model-generated assessments, not confirmation that a network flow is malicious or safe.
+
+## 7. Stopping the Application
+
+Press `Ctrl + C` in both terminal windows to stop the backend and frontend servers.
+
+## Project Structure
 
 ```text
-Local: http://localhost:5173/
+SecureNet/
+│
+├── backend/
+│   ├── main.py
+│   ├── live_controller.py
+│   ├── live_explain.py
+│   ├── live_history.py
+│   ├── live_monitor.py
+│   ├── live_predict.py
+│   ├── live_worker.py
+│   ├── requirements.txt
+│   ├── saved_models/
+│   └── data/
+│
+├── src/
+│   ├── components/
+│   ├── App.jsx
+│   └── style.css
+│
+├── package.json
+├── package-lock.json
+└── README.md
 ```
 
-### 4. Open SecureNet
+## Repository
 
-Open the following URL in your browser:
+GitHub: https://github.com/Aditi867/SecureNet
 
-**http://localhost:5173/**
-
-The SecureNet dashboard should now be accessible.
-
-### 5. Explore the Dashboard
-
-The application has three main sections:
-
-- **Binary Detection:** Upload a CSV dataset to classify network traffic as benign or attack.
-- **Multi-Class Detection:** View multiclass classification performance and the confusion matrix.
-- **Advanced Analysis:** Explore model evaluation metrics and visualizations.
-
-### 6. Stop the Application
-
-When finished:
-- Go to the backend terminal and press `Ctrl + C`.
-- Go to the frontend terminal and press `Ctrl + C`.
-
-**Important:** Both backend and frontend servers must be running simultaneously for the application to work.
-
-### Project URLs
-
-- Frontend: http://localhost:5173/
-- Backend API: http://127.0.0.1:8000/
-- API Documentation: http://127.0.0.1:8000/docs
-
-**Note:** The dataset and trained model files must be present locally. The dataset CSV files are excluded from GitHub through `.gitignore`.
+**SecureNet – Network Intrusion Detection and Analysis**

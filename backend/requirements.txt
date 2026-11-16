@@ -1,7 +1,12 @@
 
-fastapi
+fastapi==0.162.2
 uvicorn
 python-multipart
 pandas
 numpy
 scikit-learn
+torch==2.15.0
+joblib==1.6.0
+xgboost==3.4.1
+nfstream==6.6.0
+shap

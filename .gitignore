@@ -1,9 +1,24 @@
+# Frontend dependencies and builds
 node_modules/
 dist/
+
+# Environment variables and secrets
 .env
-.env.local
-*.csv
+.env.*
+!.env.example
+
+# Python temporary files
 __pycache__/
-*.pyc
+*.py[cod]
 .venv/
 venv/
+
+# Datasets and local network captures
+*.csv
+*.db
+
+# Local backups
+final_backup_16Nov/
+
+# Accidental empty file
+/python

@@ -3,8 +3,8 @@
     "precision": 0.9584369257377581,
     "recall": 0.9974126778783958,
     "f1_score": 0.9775364515862297,
-    "training_time": 13.879211500287056,
-    "inference_time": 0.33138539968058467,
+    "training_time": 13.933911699801683,
+    "inference_time": 0.3711679996922612,
     "confusion_matrix": [
         [
             69461,
@@ -14,5 +14,97 @@
             46,
             17733
         ]
-    ]
+    ],
+    "models": {
+        "Decision Tree": {
+            "accuracy": 0.9948755240941267,
+            "precision": 0.9824053452115813,
+            "recall": 0.9924067720344226,
+            "f1_score": 0.9873807325330871,
+            "training_time": 9.420672500040382,
+            "inference_time": 0.09583740029484034,
+            "confusion_matrix": [
+                [
+                    69914,
+                    316
+                ],
+                [
+                    135,
+                    17644
+                ]
+            ]
+        },
+        "Random Forest": {
+            "accuracy": 0.9907395834516924,
+            "precision": 0.9584369257377581,
+            "recall": 0.9974126778783958,
+            "f1_score": 0.9775364515862297,
+            "training_time": 13.933911699801683,
+            "inference_time": 0.3711679996922612,
+            "confusion_matrix": [
+                [
+                    69461,
+                    769
+                ],
+                [
+                    46,
+                    17733
+                ]
+            ]
+        },
+        "Logistic Regression": {
+            "accuracy": 0.9833994250588008,
+            "precision": 0.9261019427616461,
+            "recall": 0.9974126778783958,
+            "f1_score": 0.9604354537330408,
+            "training_time": 12.130911900196224,
+            "inference_time": 0.07899000030010939,
+            "confusion_matrix": [
+                [
+                    68815,
+                    1415
+                ],
+                [
+                    46,
+                    17733
+                ]
+            ]
+        },
+        "Gaussian Naive Bayes": {
+            "accuracy": 0.8231430876387642,
+            "precision": 0.9995487364620939,
+            "recall": 0.12458518476854716,
+            "f1_score": 0.2215553888472118,
+            "training_time": 3.4951945999637246,
+            "inference_time": 0.705258300062269,
+            "confusion_matrix": [
+                [
+                    70229,
+                    1
+                ],
+                [
+                    15564,
+                    2215
+                ]
+            ]
+        },
+        "XGBoost": {
+            "accuracy": 0.9928416411957868,
+            "precision": 0.9691928864569084,
+            "recall": 0.9962315090837505,
+            "f1_score": 0.982526210683974,
+            "training_time": 12.311132999602705,
+            "inference_time": 0.10941160004585981,
+            "confusion_matrix": [
+                [
+                    69667,
+                    563
+                ],
+                [
+                    67,
+                    17712
+                ]
+            ]
+        }
+    }
 }

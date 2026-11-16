@@ -19,8 +19,25 @@ import {
   Legend
 } from 'recharts'
 
+const modelColors = {
+  'Deep Learning': '#38bdf8',
+  'Decision Tree': '#f59e0b',
+  'Random Forest': '#a78bfa',
+  'Logistic Regression': '#34d399',
+  'Gaussian Naive Bayes': '#fb7185',
+  'XGBoost': '#f97316'
+}
 
-function MetricCard({ title, mlp, rf, icon: Icon }) {
+const modelNames = [
+  'Deep Learning',
+  'Decision Tree',
+  'Random Forest',
+  'Logistic Regression',
+  'Gaussian Naive Bayes',
+  'XGBoost'
+]
+
+function MetricCard({ title, values, icon: Icon }) {
   return (
     <div className="comparison-card">
       <div className="comparison-card-header">
@@ -29,23 +46,53 @@ function MetricCard({ title, mlp, rf, icon: Icon }) {
       </div>
 
       <div className="comparison-values">
-        <div>
-          <span className="comparison-label">Deep Learning</span>
-          <h2>{mlp}</h2>
-        </div>
-
-        <div>
-          <span className="comparison-label">Random Forest</span>
-          <h2>{rf}</h2>
-        </div>
+        {values.map((item) => (
+          <div key={item.name}>
+            <span className="comparison-label">{item.name}</span>
+            <h2>{item.value}</h2>
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
+function PerformanceChart({ title, data, height = 340, unit = '%' }) {
+  return (
+    <div className="comparison-chart-card">
+      <h3>{title}</h3>
+
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#26364d" />
+          <XAxis dataKey="metric" stroke="#a7b6ca" />
+          <YAxis
+            stroke="#a7b6ca"
+            domain={unit === '%' ? [0, 100] : [0, 'auto']}
+          />
+          <Tooltip
+            formatter={(value) => [
+              `${Number(value).toFixed(2)}${unit}`,
+              'Value'
+            ]}
+          />
+          <Legend />
+
+          {modelNames.map((name) => (
+            <Bar
+              key={name}
+              dataKey={name}
+              fill={modelColors[name]}
+              radius={[4, 4, 0, 0]}
+            />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
 
 export default function Comparison({ comparisonMetrics }) {
-
   if (!comparisonMetrics) {
     return (
       <div className="empty-state">
@@ -55,228 +102,213 @@ export default function Comparison({ comparisonMetrics }) {
     )
   }
 
-
   const binaryDL = comparisonMetrics.binary.deep_learning
   const binaryML = comparisonMetrics.binary.machine_learning
 
   const multiDL = comparisonMetrics.multiclass.deep_learning
   const multiML = comparisonMetrics.multiclass.machine_learning
-  const multiDLAccuracy =
-  multiDL.accuracy ?? multiDL.classification_report.accuracy
 
+  const binaryModels = binaryML.models || {}
+  const multiclassModels = multiML.models || {}
+
+  const multiDLAccuracy =
+    multiDL.accuracy ?? multiDL.classification_report.accuracy
+
+  const getBinaryValues = (metric) => [
+    {
+      name: 'Deep Learning',
+      value: binaryDL[metric]
+    },
+    ...Object.entries(binaryModels).map(([name, model]) => ({
+      name,
+      value: model[metric]
+    }))
+  ]
+
+  const getMulticlassValues = (metric) => [
+    {
+      name: 'Deep Learning',
+      value: metric === 'accuracy'
+        ? multiDLAccuracy
+        : multiDL.classification_report['macro avg'][
+            metric === 'macro_f1' ? 'f1-score' : metric.replace('macro_', '')
+          ]
+    },
+    ...Object.entries(multiclassModels).map(([name, model]) => ({
+      name,
+      value: model[metric]
+    }))
+  ]
+
+  const formatValues = (values) =>
+    values.map((item) => ({
+      name: item.name,
+      value: `${(item.value * 100).toFixed(2)}%`
+    }))
 
   const binaryData = [
     {
       metric: 'Accuracy',
-      'Deep Learning': binaryDL.accuracy * 100,
-      'Random Forest': binaryML.accuracy * 100
+      ...Object.fromEntries(getBinaryValues('accuracy').map(x => [x.name, x.value * 100]))
     },
     {
       metric: 'Precision',
-      'Deep Learning': binaryDL.precision * 100,
-      'Random Forest': binaryML.precision * 100
+      ...Object.fromEntries(getBinaryValues('precision').map(x => [x.name, x.value * 100]))
     },
     {
       metric: 'Recall',
-      'Deep Learning': binaryDL.recall * 100,
-      'Random Forest': binaryML.recall * 100
+      ...Object.fromEntries(getBinaryValues('recall').map(x => [x.name, x.value * 100]))
     },
     {
       metric: 'F1 Score',
-      'Deep Learning': binaryDL.f1_score * 100,
-      'Random Forest': binaryML.f1_score * 100
+      ...Object.fromEntries(getBinaryValues('f1_score').map(x => [x.name, x.value * 100]))
     }
   ]
-
 
   const multiclassData = [
     {
       metric: 'Accuracy',
-      'Deep Learning': multiDLAccuracy * 100,
-      'Random Forest': multiML.accuracy * 100
+      ...Object.fromEntries(getMulticlassValues('accuracy').map(x => [x.name, x.value * 100]))
     },
     {
       metric: 'Macro Precision',
-      'Deep Learning': multiDL['classification_report']['macro avg'].precision * 100,
-      'Random Forest': multiML.macro_precision * 100
+      ...Object.fromEntries(getMulticlassValues('macro_precision').map(x => [x.name, x.value * 100]))
     },
     {
       metric: 'Macro Recall',
-      'Deep Learning': multiDL['classification_report']['macro avg'].recall * 100,
-      'Random Forest': multiML.macro_recall * 100
+      ...Object.fromEntries(getMulticlassValues('macro_recall').map(x => [x.name, x.value * 100]))
     },
     {
       metric: 'Macro F1',
-      'Deep Learning': multiDL['classification_report']['macro avg']['f1-score'] * 100,
-      'Random Forest': multiML.macro_f1 * 100
+      ...Object.fromEntries(getMulticlassValues('macro_f1').map(x => [x.name, x.value * 100]))
     }
   ]
-
 
   const timeData = [
     {
-      model: 'Binary Training',
+      metric: 'Binary Training',
       'Deep Learning': binaryDL.training_time,
-      'Random Forest': binaryML.training_time
+      ...Object.fromEntries(
+        Object.entries(binaryModels).map(([name, model]) => [name, model.training_time])
+      )
     },
     {
-      model: 'Multiclass Training',
+      metric: 'Multiclass Training',
       'Deep Learning': multiDL.training_time,
-      'Random Forest': multiML.training_time
+      ...Object.fromEntries(
+        Object.entries(multiclassModels).map(([name, model]) => [name, model.training_time])
+      )
     },
     {
-      model: 'Binary Inference',
+      metric: 'Binary Inference',
       'Deep Learning': binaryDL.inference_time,
-      'Random Forest': binaryML.inference_time
+      ...Object.fromEntries(
+        Object.entries(binaryModels).map(([name, model]) => [name, model.inference_time])
+      )
     },
     {
-      model: 'Multiclass Inference',
+      metric: 'Multiclass Inference',
       'Deep Learning': multiDL.inference_time,
-      'Random Forest': multiML.inference_time
+      ...Object.fromEntries(
+        Object.entries(multiclassModels).map(([name, model]) => [name, model.inference_time])
+      )
     }
   ]
-
 
   return (
     <div className="comparison-page">
 
       <div className="comparison-intro">
-        <h2>Machine Learning vs Deep Learning</h2>
+        <h2>Model Performance Comparison</h2>
         <p>
-          Comparing Random Forest and Multi-Layer Perceptron
-          performance on the UNSW-NB15 dataset.
+          Comparing five machine learning algorithms with a
+          Multi-Layer Perceptron on the UNSW-NB15 dataset.
         </p>
       </div>
 
-
-      {/* Binary Detection */}
       <section className="comparison-section">
-
         <div className="comparison-heading">
           <Target size={20} />
           <h2>Binary Classification</h2>
         </div>
 
         <div className="comparison-grid">
-
           <MetricCard
             title="Accuracy"
-            mlp={`${(binaryDL.accuracy * 100).toFixed(2)}%`}
-            rf={`${(binaryML.accuracy * 100).toFixed(2)}%`}
+            values={formatValues(getBinaryValues('accuracy'))}
             icon={TrendingUp}
           />
 
           <MetricCard
             title="Precision"
-            mlp={`${(binaryDL.precision * 100).toFixed(2)}%`}
-            rf={`${(binaryML.precision * 100).toFixed(2)}%`}
+            values={formatValues(getBinaryValues('precision'))}
             icon={Target}
           />
 
           <MetricCard
             title="Recall"
-            mlp={`${(binaryDL.recall * 100).toFixed(2)}%`}
-            rf={`${(binaryML.recall * 100).toFixed(2)}%`}
+            values={formatValues(getBinaryValues('recall'))}
             icon={Zap}
           />
 
           <MetricCard
             title="F1 Score"
-            mlp={`${(binaryDL.f1_score * 100).toFixed(2)}%`}
-            rf={`${(binaryML.f1_score * 100).toFixed(2)}%`}
+            values={formatValues(getBinaryValues('f1_score'))}
             icon={Brain}
           />
-
         </div>
 
-        <div className="comparison-chart-card">
-          <h3>Binary Model Performance</h3>
-
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={binaryData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#26364d" />
-              <XAxis dataKey="metric" stroke="#a7b6ca" />
-              <YAxis domain={[0, 100]} stroke="#a7b6ca" />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Deep Learning" fill="#38bdf8" radius={[5, 5, 0, 0]} />
-              <Bar dataKey="Random Forest" fill="#a78bfa" radius={[5, 5, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
+        <PerformanceChart
+          title="Binary Model Performance"
+          data={binaryData}
+        />
       </section>
 
-
-      {/* Multiclass Detection */}
       <section className="comparison-section">
-
         <div className="comparison-heading">
           <Trees size={20} />
           <h2>Multiclass Classification</h2>
         </div>
 
         <div className="comparison-grid">
-
           <MetricCard
             title="Accuracy"
-            mlp={`${(multiDLAccuracy * 100).toFixed(2)}%`}
-            rf={`${(multiML.accuracy * 100).toFixed(2)}%`}
+            values={formatValues(getMulticlassValues('accuracy'))}
             icon={TrendingUp}
           />
 
           <MetricCard
             title="Macro Precision"
-            mlp={`${(multiDL['classification_report']['macro avg'].precision * 100).toFixed(2)}%`}
-            rf={`${(multiML.macro_precision * 100).toFixed(2)}%`}
+            values={formatValues(getMulticlassValues('macro_precision'))}
             icon={Target}
           />
 
           <MetricCard
             title="Macro Recall"
-            mlp={`${(multiDL['classification_report']['macro avg'].recall * 100).toFixed(2)}%`}
-            rf={`${(multiML.macro_recall * 100).toFixed(2)}%`}
+            values={formatValues(getMulticlassValues('macro_recall'))}
             icon={Zap}
           />
 
           <MetricCard
             title="Macro F1 Score"
-            mlp={`${(multiDL['classification_report']['macro avg']['f1-score'] * 100).toFixed(2)}%`}
-            rf={`${(multiML.macro_f1 * 100).toFixed(2)}%`}
+            values={formatValues(getMulticlassValues('macro_f1'))}
             icon={Brain}
           />
-
         </div>
 
-        <div className="comparison-chart-card">
-          <h3>Multiclass Model Performance</h3>
-
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={multiclassData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#26364d" />
-              <XAxis dataKey="metric" stroke="#a7b6ca" />
-              <YAxis domain={[0, 100]} stroke="#a7b6ca" />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Deep Learning" fill="#38bdf8" radius={[5, 5, 0, 0]} />
-              <Bar dataKey="Random Forest" fill="#a78bfa" radius={[5, 5, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
+        <PerformanceChart
+          title="Multiclass Model Performance"
+          data={multiclassData}
+        />
       </section>
 
-
-      {/* Training and Inference Time */}
       <section className="comparison-section">
-
         <div className="comparison-heading">
           <Clock size={20} />
           <h2>Computational Performance</h2>
         </div>
 
         <div className="comparison-chart-card">
-
           <h3>Training and Inference Time</h3>
 
           <p className="comparison-note">
@@ -284,20 +316,25 @@ export default function Comparison({ comparisonMetrics }) {
             Values are measured in seconds.
           </p>
 
-          <ResponsiveContainer width="100%" height={340}>
+          <ResponsiveContainer width="100%" height={380}>
             <BarChart data={timeData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#26364d" />
-              <XAxis dataKey="model" stroke="#a7b6ca" />
+              <XAxis dataKey="metric" stroke="#a7b6ca" />
               <YAxis stroke="#a7b6ca" />
               <Tooltip />
               <Legend />
-              <Bar dataKey="Deep Learning" fill="#38bdf8" radius={[5, 5, 0, 0]} />
-              <Bar dataKey="Random Forest" fill="#a78bfa" radius={[5, 5, 0, 0]} />
+
+              {modelNames.map((name) => (
+                <Bar
+                  key={name}
+                  dataKey={name}
+                  fill={modelColors[name]}
+                  radius={[4, 4, 0, 0]}
+                />
+              ))}
             </BarChart>
           </ResponsiveContainer>
-
         </div>
-
       </section>
 
     </div>

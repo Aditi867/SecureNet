@@ -966,14 +966,16 @@ footer {
 
 }
 
+
 /* =========================================
-   ML VS DL COMPARISON DASHBOARD
+   MODEL PERFORMANCE COMPARISON DASHBOARD
 ========================================= */
 
 .comparison-page {
   display: flex;
   flex-direction: column;
   gap: 25px;
+  width: 100%;
 }
 
 .comparison-intro {
@@ -1015,6 +1017,8 @@ footer {
   margin: 0;
 }
 
+/* Metric cards */
+
 .comparison-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1025,7 +1029,8 @@ footer {
   background: linear-gradient(145deg, #142f49, #10263d);
   border: 1px solid #294863;
   border-radius: 12px;
-  padding: 18px;
+  padding: 20px;
+  min-width: 0;
   transition: transform .2s, border-color .2s;
 }
 
@@ -1041,7 +1046,7 @@ footer {
   color: #91abc5;
   font-size: 12px;
   font-weight: 600;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .comparison-card-header svg {
@@ -1050,30 +1055,54 @@ footer {
 
 .comparison-values {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 12px;
 }
 
 .comparison-values > div {
   min-width: 0;
+  padding-left: 9px;
+  border-left: 2px solid #294863;
 }
 
 .comparison-label {
   display: block;
-  color: #8099b3;
+  color: #91abc5;
   font-size: 10px;
-  margin-bottom: 7px;
+  line-height: 1.5;
+  min-height: 30px;
+  margin-bottom: 5px;
+  overflow-wrap: anywhere;
 }
 
 .comparison-values h2 {
   color: #53d9e9;
-  font: 800 clamp(18px, 2vw, 24px) Manrope;
+  font: 800 clamp(16px, 1.5vw, 21px) Manrope;
   margin: 0;
+  white-space: nowrap;
 }
 
-.comparison-values > div:last-child h2 {
+.comparison-values > div:nth-child(2) h2 {
+  color: #fbbf65;
+}
+
+.comparison-values > div:nth-child(3) h2 {
   color: #b69aff;
 }
+
+.comparison-values > div:nth-child(4) h2 {
+  color: #53d9a5;
+}
+
+.comparison-values > div:nth-child(5) h2 {
+  color: #fb8497;
+}
+
+.comparison-values > div:nth-child(6) h2 {
+  color: #fb9b65;
+}
+
+/* Performance charts */
 
 .comparison-chart-card {
   background: linear-gradient(145deg, #10243a, #0c1d31);
@@ -1097,11 +1126,11 @@ footer {
   line-height: 1.5;
 }
 
-/* Comparison dashboard responsive layout */
+/* Responsive layout */
 
-@media (min-width: 1000px) {
+@media (min-width: 1100px) {
   .comparison-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1122,7 +1151,11 @@ footer {
     font-size: 15px;
   }
 
+  .comparison-values {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .comparison-values h2 {
-    font-size: 20px;
+    font-size: 19px;
   }
 }
